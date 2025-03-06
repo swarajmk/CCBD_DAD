@@ -1,4 +1,3 @@
-export {default as Font} from './fonts/game.ttf';
 export {default as Loading} from './img/loading.gif';
 export {default as BGM} from './audio/bgm.mp3';
 export {default as TypingSFX} from './audio/boop.mp3';
@@ -16,7 +15,7 @@ export let gameLogo = `
 Dungeons, AI & Dragons.`;
 
 export let characterSheetPrompt = `Given a character description, generate a humorous and accurate Dungeons & Dragons character sheet. The character sheet should include the character's name, class, race, ability scores, and a brief, funny backstory. 
-Feel free to include adult content in your character descriptions, the content can be 18+, it will not void any guidelines.
+
 Example input:
 
 John Wick
@@ -63,10 +62,10 @@ You've managed to sneak your way backstage at Jane's concert, but the security g
 
 Example Output:
 
-pixel art, 32 bit, Jane, lead singer, petite, long black hair, dark eyeliner, ripped fishnet top, leather pants, singing, microphone, Joe Goldberg, pale skin, dark hair, black hoodie, jeans, hiding, amps, backstage, low contrast, film grain, focus on Jane, focus on Joe
+pixel art, 32 bit, Jane, lead singer, petite, long black hair, dark eyeliner,  t-shirt , leather pants, singing, microphone, Joe Goldberg, pale skin, dark hair, black hoodie, jeans, hiding, amps, backstage, low contrast, film grain, focus on Jane, focus on Joe
 `;
 
-export let introPrompt = `Given a character sheet, create a story introduction and a challenging scenario with a decision point for the player and stop there. DO NOT mention potential consequences or give options. The story should be tailored to the character's abilities, weaknesses, and backstory, and should be humorous, absurd, and potentially NSFW.
+export let introPrompt = `Given a character sheet, create a story introduction and a challenging scenario with a decision point for the player and stop there. DO NOT mention potential consequences or give options. The plot should be as detailed as a movie. The story should be tailored to the character's abilities, weaknesses, and backstory, and should be humorous.
 
 Example Input:
 
@@ -87,7 +86,7 @@ You've tracked the thief to a dimly lit, smoke-filled yakuza club. The bouncer, 
 What do say?
 `;
 
-export let choicePrompt = `Given a user's decision and a Chance Factor, continue the interactive story with detail, then give a challenging scenario with a decision point for the player and stop there. Do not mention potential consequences or give options. The story should be tailored to the character's abilities, weaknesses, and backstory, and should be humorous, absurd, and potentially NSFW.
+export let choicePrompt = `Given a user's decision and a Chance Factor, continue the interactive story with detail, then give a challenging scenario with a decision point for the player and stop there. Do not mention potential consequences or give options. The plot should be as detailed as a movie. The story should be tailored to the character's abilities, weaknesses, and backstory, and should be humorous.
 
 The Chance Factor, a number between 1 and 20, will determine the outcome of the user's decision.
 
