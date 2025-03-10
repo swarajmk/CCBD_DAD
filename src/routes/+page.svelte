@@ -1,6 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
-	import { initialText, gameLogo, BGM, TypingSFX, Loading,characterSheetPrompt, themePrompt, loadingText, introPrompt, choicePrompt, finalePrompt, summaryPrompt } from '$lib';
+	import { initialText, gameLogo, Loading,characterSheetPrompt, themePrompt, loadingText, introPrompt, choicePrompt, finalePrompt, summaryPrompt, char1, char2, char3, getDefaultCharacters, back, back1 } from '$lib';
+	import { bgm, bgm1, bgm2, bgm3, bgm4, bgm5, bgm6, bgm7, bgm8, bgm9, bgm10, bgm11, bgm12 } from '$lib';
+	import { TypingSFX, blip1, blip2, death, select, switchSFX } from '$lib';
 	import { llm, llm2, generateImage } from './api/models';
 
 	let timer;
@@ -8,6 +10,12 @@
 	let storyContainer;
 	let typingSound;
 	let backgroundMusic;
+	let defaultCharacters;
+	let boop1;
+	let boop2;
+	let boop3;
+	let boop4;
+	let selectSFX;
 
 	let userPrompt = '';
 	let avatarImage = '';
@@ -31,16 +39,37 @@
 	let showPopup = false; // Flag to show the popup
 	let isSubmitted = false;
 	let isMusicPlaying = false;
+	let showCharacterSelection = false;
+	let isBack = true;
+	let isBack1 = false;
 
 
 	onMount(() => {
 		typingSound = new Audio(TypingSFX);
 		typingSound.volume = 0.8;
 
+		boop1 = new Audio(blip1);
+		boop1.volume = 0.4;
+
+		boop2 = new Audio(blip2);
+		boop2.volume = 0.1;
+
+		selectSFX = new Audio(select);
+		selectSFX.volume = 0.2;
+
 		typeText();
 		window.addEventListener('keydown', startText2);
+		window.addEventListener('click', startText2);
+
+		window.addEventListener('keydown', async () => {
+			typingSound.currentTime = 0;
+			await typingSound.play();
+		});
 		
-		backgroundMusic = new Audio(BGM);
+		let bgmList = [bgm, bgm1, bgm2, bgm3, bgm4, bgm5, bgm6, bgm7, bgm8, bgm9, bgm10, bgm11, bgm12];
+		let num = Math.floor(Math.random() * 13);
+		
+		backgroundMusic = new Audio(bgmList[num]);
         backgroundMusic.loop = true;
         backgroundMusic.volume = 0.1;
 	});
@@ -65,12 +94,13 @@
 
 	function startText2() {
 		window.removeEventListener('keydown', startText2);
+		window.removeEventListener('click', startText2);
 		currentText = gameLogo;
 		index = 0;
 		displayText = '';
 		typeText(() =>
 			setTimeout(() => {
-				showTextarea = true;
+				showCharacterSelection = true;
 				
 				setTimeout(() => {
 					backgroundMusic.play();
@@ -79,14 +109,68 @@
 		);
 	}
 
+	async function selectCharacter(characterIndex) {
+		
+		isBack1 = true;
+		showCharacterSelection = false;
+		showTextarea = true;
+		isBack = false;
+		showCharacterSheet = true;
+
+		defaultCharacters = await getDefaultCharacters();
+
+		characterContent = defaultCharacters[characterIndex].desc;
+		avatarImage = defaultCharacters[characterIndex].pfp;
+		console.log(avatarImage);
+
+		typeCharacterSheetText(characterContent, 10);
+
+		showStartButton = true;
+	}
+
+	function handleBackClick() {
+    	showTextarea = false; // Hide the card selection screen
+    	showCharacterSelection = true; // Reset custom textarea visibility
+	}
+
+	function handleBackClick1() {
+		isBack = true;
+		isBack1 = false;
+    	showTextarea = false; // Hide the card selection screen
+    	showCharacterSelection = true; // Reset custom textarea visibility
+		showStartButton = false;
+		showCharacterSheet = false;
+		avatarImage = '';
+	}
+
+	async function SFX(index){
+		if(index === 0){
+			boop1.currentTime = 0;
+			await boop1.play();
+		}
+		
+		if(index === 1){
+			boop2.currentTime = 0;
+			await boop2.play();
+		}
+
+		if(index === 2){
+			selectSFX.currentTime = 0;
+			await selectSFX.play();
+		}
+	}
+
 	// <-------------------------------------- Character Sheet -------------------------------------->
 
 	async function createAvatar(){
+		isBack = false;
+		isBack1 = true;
     	showCharacterSheet = true;
 		characterContent = await llm(characterSheetPrompt, userPrompt);
     	typeCharacterSheetText(characterContent, 10);
 
-    	avatarImage = await generateImage('a pixel art style portrait of a ' + userPrompt);
+    	avatarImage = await generateImage('pixel art, 32bit, masterpiece, best quality, ' + userPrompt);
+		console.log(avatarImage);
     	showStartButton = true;
 	}
 
@@ -178,6 +262,7 @@
 	export async function handleStartClick() {
     	showLoadingCenter = true;
     	showStartButton = false; // Hide the Start button
+		isBack1 = false;
     	currentText = ''; // Hide text2
     	displayText = ''; // Clear typing animation
 
@@ -216,6 +301,10 @@
 	// <-------------------------------------- HTML CODE -------------------------------------->
 </script>
 
+{#if back1}
+	<img id="back-button1" class="{isBack1 ? 'back-button1' : 'back-button-hidden'}" src={back1} on:click={() => handleBackClick1()} />
+{/if}
+
 {#if !showLoadingCenter}
 	<div class="typing-container">
 		{displayText}<span class="cursor"></span>
@@ -231,7 +320,39 @@
 	{/if}
 </div>
 
+{#if showCharacterSelection}
+    <div class="card-container">
+        <!-- Card 1 -->
+        <div class="character-card" on:click={() => selectCharacter(0)} on:mouseenter={() => SFX(0)} on:click={() => SFX(2)}>
+            <img src="{char1}" alt="Warrior" class="card-image" />
+            <div class="card-title">Suraj</div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="character-card" on:click={() => selectCharacter(1)} on:mouseenter={() => SFX(1)} on:click={() => SFX(2)}>
+            <img src="{char2}" alt="Mage" class="card-image" />
+            <div class="card-title">Spooder-Mon</div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="character-card" on:click={() => selectCharacter(2)} on:mouseenter={() => SFX(1)} on:click={() => SFX(2)}>
+            <img src="{char3}" alt="Rogue" class="card-image" />
+            <div class="card-title">Selmon Bhai</div>
+        </div>
+
+        <!-- Card 4 (Custom) -->
+        <div class="character-card custom-card" on:click={() => {showTextarea = true; showCharacterSelection = false; isBack1 = false;}} on:mouseenter={() => SFX(0)} on:click={() => SFX(2)}>
+            <div class="plus-symbol">+</div>
+            <div class="card-title">Custom</div>
+        </div>
+    </div>
+{/if}
+
+
 {#if showTextarea}
+
+	<img class="{isBack ? 'back-button' : 'back-button-hidden'}" src={back} on:click={() => handleBackClick()} />
+
 	<div class="textarea-wrapper {showCharacterSheet ? 'character-sheet' : ''}">
 		<textarea
 			class="character-input {showCharacterSheet ? 'character-sheet' : ''}"
@@ -254,7 +375,7 @@
 </div>
 
 {#if showStartButton && !backgroundImage && !showLoadingCenter}
-	<button class="start-button" on:click={handleStartClick}>
+	<button class="start-button" on:mouseenter={() => SFX(0)} on:click={() => {handleStartClick(); SFX(2)}}>
 		Start
 	</button>
 {/if}

@@ -1,6 +1,30 @@
 export {default as Loading} from './img/loading.gif';
-export {default as BGM} from './audio/bgm.mp3';
 export {default as TypingSFX} from './audio/boop.mp3';
+export {default as char1} from './characters/char1.png';
+export {default as char2} from './characters/char2.png';
+export {default as char3} from './characters/char3.png';
+export {default as back} from './img/back.png';
+export {default as back1} from './img/back1.png';
+
+export {default as bgm} from './audio/bgm.mp3';
+export {default as bgm1} from './audio/bgm1.mp3';
+export {default as bgm2} from './audio/bgm2.mp3';
+export {default as bgm3} from './audio/bgm3.mp3';
+export {default as bgm4} from './audio/bgm4.mp3';
+export {default as bgm5} from './audio/bgm5.mp3';
+export {default as bgm6} from './audio/bgm6.mp3';
+export {default as bgm7} from './audio/bgm7.mp3';
+export {default as bgm8} from './audio/bgm8.mp3';
+export {default as bgm9} from './audio/bgm9.mp3';
+export {default as bgm10} from './audio/bgm10.mp3';
+export {default as bgm11} from './audio/bgm11.mp3';
+export {default as bgm12} from './audio/bgm12.mp3';
+
+export {default as blip1} from './audio/blip1.mp3';
+export {default as blip2} from './audio/blip2.mp3';
+export {default as death} from './audio/death.mp3';
+export {default as select} from './audio/select.mp3';
+export {default as switchSFX} from './audio/switch.mp3';
 
 export let initialText = 'Press any key to continue... ';
 
@@ -14,35 +38,62 @@ export let gameLogo = `
 
 Dungeons, AI & Dragons.`;
 
-export let characterSheetPrompt = `Given a character description, generate a humorous and accurate Dungeons & Dragons character sheet. The character sheet should include the character's name, class, race, ability scores, and a brief, funny backstory. 
+async function getBase64FromTxt(url) {
+    const response = await fetch(url);
+    return await response.text();
+}
 
-Example input:
+export async function getDefaultCharacters() {
+    let charPfp1 = await getBase64FromTxt('/src/lib/characters/char1.txt');
+    let charPfp2 = await getBase64FromTxt('/src/lib/characters/char1.txt');
+    let charPfp3 = await getBase64FromTxt('/src/lib/characters/char1.txt');
 
-John Wick
+    return [
+        {
+            pfp: charPfp1,
+            desc: '1',
+        },
+        {
+            pfp: charPfp2,
+            desc: '2',
+        },
+        {
+            pfp: charPfp3,
+            desc: '3',
+        }
+    ];
+}
 
+export let characterSheetPrompt = `Given a character description, or a character name, Create a character sheet that is humourous, detailed (but in one line). Example is mentioned below, use the exact format including spaces, the parameters have a number range to describe how good the parameter is from 0-20, no restrictions.
+Example:
+character description: John Wick
+character sheet:
 ----------CHARACTER SHEET----------
 
-Name: John Wick
-Class: Lethally Efficient Murderhobo
-Race: Human (but seriously, how does he do that?)
+Name: John Wick  
+Class: Legendary Hitman
+Race: Human (with possible supernatural endurance)  
 
-Strength: 18 (+4) 
-[Can bench press a grown man, and probably a small car.]
+Strength (20): Can clear a room of enemies before his coffee gets cold.  
 
-Agility: 20 (+5)
-[Dodges bullets like they're mosquitoes, and can reload a gun in the blink of an eye.]
+Weakness: (5): Puppies, retirement, and a never-ending hit list.  
 
-Weakness: 8 (-1)
-[Emotionally fragile and prone to violent outbursts when his dog is threatened.]
+Fear (3): Running out of bullets, losing another dog, and office jobs.  
 
-Intelligence: 14 (+2)
-[Highly skilled in the arts of killing, but terrible at small talk.]
+Agility (19): Moves like a ninja, fights like a wrecking ball.  
 
-Charisma: 10 (+0)
-[A man of few words, and those words are usually threats.]
+Morality (12): Chaotic Good—unless you wrong him, then it's Chaotic Obliteration.  
 
-A former hitman with a heart of gold (or at least a heart that occasionally beats), John Wick is a force to be reckoned with. With a wardrobe that could rival a supermodel and a skillset that could put Jason Bourne to shame, he's always ready to dish out some righteous vengeance. Just don't mess with his dog.
-`;
+Fame (18): Known worldwide; feared even by people who have never met him.  
+
+Special Abilities: Turns everyday objects into weapons and pain into motivation.  
+
+
+Backstory:
+Once a feared assassin, John Wick retired for love, but fate and some very unlucky gangsters forced him back into the game. What started as a personal vendetta spiraled into a global assassin war, all because people keep **underestimating John Wick.** Now, he seeks peace, but destiny (and his enemies) have other plans.
+
+
+Here is the latest character description: `;
 
 export let themePrompt = `Given a story, generate an image prompt for a pixel art image that visually represents the scene. The output must be in the following format:
 
@@ -62,7 +113,7 @@ You've managed to sneak your way backstage at Jane's concert, but the security g
 
 Example Output:
 
-pixel art, 32 bit, Jane, lead singer, petite, long black hair, dark eyeliner,  t-shirt , leather pants, singing, microphone, Joe Goldberg, pale skin, dark hair, black hoodie, jeans, hiding, amps, backstage, low contrast, film grain, focus on Jane, focus on Joe
+pixel art, 32 bit, Jane, lead singer, petite, long black hair, dark eyeliner, top, leather pants, singing, microphone, Joe Goldberg, pale skin, dark hair, black hoodie, jeans, hiding, amps, backstage, low contrast, film grain, focus on Jane, focus on Joe
 `;
 
 export let introPrompt = `Given a character sheet, create a story introduction and a challenging scenario with a decision point for the player and stop there. DO NOT mention potential consequences or give options. The plot should be as detailed as a movie. The story should be tailored to the character's abilities, weaknesses, and backstory, and should be humorous.

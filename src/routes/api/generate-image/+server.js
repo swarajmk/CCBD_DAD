@@ -8,6 +8,10 @@ export async function POST({ request }) {
         steps: 28,
         guidance_scale: 6,
         sampler_index: 'DPM++ 2M',
+        negative_prompt: "extra fingers, missing fingers, poorly rendered hands, mutation, deformed limbs, watermark",
+        clip_skip: 2,
+        width: 1024,
+        height: 1024,
     };
 
     try {

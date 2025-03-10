@@ -4,7 +4,7 @@ import { GROQ_API_KEY } from '$env/static/private';
 
 const llm = new ChatGroq({
     apiKey: GROQ_API_KEY,
-    model: 'mixtral-8x7b-32768',
+    model: 'llama-3.3-70b-versatile',
     temperature: 0,
     maxTokens: undefined,
 });
@@ -12,7 +12,7 @@ const llm = new ChatGroq({
 export async function POST({ request }) {
     const { messages, systemPrompt } = await request.json();
     const aiResponse = await llm.invoke([
-        { role: 'system', content: systemPrompt },
+        { role: 'system', content: 'Give Direct Response, dont give extra text or formatting.' },
         ...messages
     ]);
     return json({ content: aiResponse.content });
