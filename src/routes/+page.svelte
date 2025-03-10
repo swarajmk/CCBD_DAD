@@ -1,9 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
-	import { initialText, gameLogo, Loading,characterSheetPrompt, themePrompt, loadingText, introPrompt, choicePrompt, finalePrompt, summaryPrompt, char1, char2, char3, getDefaultCharacters, back, back1 } from '$lib';
+	import { initialText, gameLogo, Loading, getDefaultCharacters, back, back1 } from '$lib';
+	import { characterSheetPrompt, themePrompt, introPrompt, choicePrompt, avatarGenerationPrompt, finalePrompt, summaryPrompt } from '$lib';
 	import { bgm, bgm1, bgm2, bgm3, bgm4, bgm5, bgm6, bgm7, bgm8, bgm9, bgm10, bgm11, bgm12 } from '$lib';
 	import { TypingSFX, blip1, blip2, death, select, switchSFX } from '$lib';
-	import { llm, llm2, generateImage } from './api/models';
+	import { storyLLM, charLLM, imgLLM} from './api/models';
+	//import { text } from '@sveltejs/kit';
 
 	let timer;
 	let countdown;
@@ -11,22 +13,45 @@
 	let typingSound;
 	let backgroundMusic;
 	let defaultCharacters;
+	let characterContent;
 	let boop1;
 	let boop2;
 	let boop3;
 	let boop4;
 	let selectSFX;
+	let numArray;
+	let char1;
+	let char2;
+	let char3;
+	let charName1;
+	let charName2;
+	let charName3;
+
+	let sheetName;
+	let sheetClass;
+	let sheetRace;
+	let sheetStr;
+	let sheetStrNum;
+	let sheetWeak;
+	let sheetWeakNum;
+	let SheetFear;
+	let sheetFearNum;
+	let sheetAgility;
+	let sheetAgilityNum;
+	let sheetMorality;
+	let sheetMoralityNum;
+	let sheetFame;
+	let sheetFameNum;
+	let sheetAbility;
+	let sheetStory;
 
 	let userPrompt = '';
 	let avatarImage = '';
 	let backgroundImage = '';
 	let displayText = '';
-	let backgroundTheme = '';
 	let story = '';
 	let userResponse = '';
 
-	let generatedImage = null;
-	let characterContent = loadingText;
 	let currentText = initialText;
 	let index = 0;
 	let typingSpeed = 30;
@@ -42,6 +67,8 @@
 	let showCharacterSelection = false;
 	let isBack = true;
 	let isBack1 = false;
+	let isSelmon = false;
+	let isLoading = false;
 
 
 	onMount(() => {
@@ -57,6 +84,8 @@
 		selectSFX = new Audio(select);
 		selectSFX.volume = 0.2;
 
+		random3Char();
+
 		typeText();
 		window.addEventListener('keydown', startText2);
 		window.addEventListener('click', startText2);
@@ -68,6 +97,8 @@
 		
 		let bgmList = [bgm, bgm1, bgm2, bgm3, bgm4, bgm5, bgm6, bgm7, bgm8, bgm9, bgm10, bgm11, bgm12];
 		let num = Math.floor(Math.random() * 13);
+
+		if(num === 2) isSelmon = true;
 		
 		backgroundMusic = new Audio(bgmList[num]);
         backgroundMusic.loop = true;
@@ -109,21 +140,56 @@
 		);
 	}
 
-	async function selectCharacter(characterIndex) {
-		
+	async function random3Char() {
+		let num = Math.floor(Math.random() * 10);
+		let num1 = Math.floor(Math.random() * 10);
+		let num2 = Math.floor(Math.random() * 10);
+
+		while(num === num1 || num === num2 || num1 === num2){
+			num = Math.floor(Math.random() * 10);
+			num1 = Math.floor(Math.random() * 10);
+			num2 = Math.floor(Math.random() * 10);
+		}
+
+		numArray = [num, num1, num2];
+
+		defaultCharacters = await getDefaultCharacters();
+
+		if(isSelmon){
+			char1 = defaultCharacters[10].pfp;
+			charName1 = defaultCharacters[10].name;
+			char2 = defaultCharacters[11].pfp;
+			charName2 = defaultCharacters[11].name;
+			char3 = defaultCharacters[12].pfp;
+			charName3 = defaultCharacters[12].name;
+		}
+		else{
+			char1 = defaultCharacters[numArray[0]].pfp;
+			charName1 = defaultCharacters[numArray[0]].name;
+			char2 = defaultCharacters[numArray[1]].pfp;
+			charName2 = defaultCharacters[numArray[1]].name;
+			char3 = defaultCharacters[numArray[2]].pfp;
+			charName3 = defaultCharacters[numArray[2]].name;
+		}
+	}
+
+	function selectCharacter(characterIndex) {
 		isBack1 = true;
 		showCharacterSelection = false;
 		showTextarea = true;
 		isBack = false;
 		showCharacterSheet = true;
 
-		defaultCharacters = await getDefaultCharacters();
-
-		characterContent = defaultCharacters[characterIndex].desc;
-		avatarImage = defaultCharacters[characterIndex].pfp;
-		console.log(avatarImage);
-
-		typeCharacterSheetText(characterContent, 10);
+		if(isSelmon){
+			characterContent = defaultCharacters[10+characterIndex].desc;
+			avatarImage = defaultCharacters[10+characterIndex].pfp;
+			formatCharacterSheet(characterContent);
+		}
+		else{
+			characterContent = defaultCharacters[numArray[characterIndex]].desc;
+			avatarImage = defaultCharacters[numArray[characterIndex]].pfp;
+			formatCharacterSheet(characterContent);
+		}
 
 		showStartButton = true;
 	}
@@ -166,24 +232,167 @@
 		isBack = false;
 		isBack1 = true;
     	showCharacterSheet = true;
-		characterContent = await llm(characterSheetPrompt, userPrompt);
-    	typeCharacterSheetText(characterContent, 10);
+		characterContent = '';
+		isLoading = true;
+		characterContent = await charLLM(characterSheetPrompt + userPrompt);
 
-    	avatarImage = await generateImage('pixel art, 32bit, masterpiece, best quality, ' + userPrompt);
+		await formatCharacterSheet(characterContent);
+
+		isLoading = false;
+    	typeCharacterSheetText(20);
+
+    	avatarImage = await imgLLM(avatarGenerationPrompt + userPrompt + characterContent);
 		console.log(avatarImage);
-    	showStartButton = true;
+    	
+		showStartButton = true;
 	}
 
-	async function typeCharacterSheetText(content, speed) {
-    	let index = 0;
-    	characterContent = ''; // Reset the characterContent
+	async function typeCharacterSheetText(speed) {
+		// Store original values in temporary variables
+		let tempSheetName = sheetName;
+		let tempSheetClass = sheetClass;
+		let tempSheetRace = sheetRace;
+		let tempSheetStr = sheetStr;
+		let tempSheetWeak = sheetWeak;
+		let tempSheetFear = SheetFear;
+		let tempSheetAgility = sheetAgility;
+		let tempSheetMorality = sheetMorality;
+		let tempSheetFame = sheetFame;
+		let tempSheetAbility = sheetAbility;
+		let tempSheetStory = sheetStory;
 
-    	while (index < content.length) {
-        	characterContent += content[index];
-        	index++;
-        	await new Promise((resolve) => setTimeout(resolve, speed)); // Typing speed delay
-    	}
-	}	
+		// Clear all variables
+		sheetName = '';
+		sheetClass = '';
+		sheetRace = '';
+		sheetStr = '';
+		sheetWeak = '';
+		SheetFear = '';
+		sheetAgility = '';
+		sheetMorality = '';
+		sheetFame = '';
+		sheetAbility = '';
+		sheetStory = '';
+
+		let index = 0;
+		while (index < tempSheetName.length) {
+			sheetName += tempSheetName[index];
+			index++;
+			await new Promise(resolve => setTimeout(resolve, speed));
+		}
+
+		index = 0;
+		while (index < tempSheetClass.length) {
+			sheetClass += tempSheetClass[index];
+			index++;
+			await new Promise(resolve => setTimeout(resolve, speed));
+		}
+
+		index = 0;
+		while (index < tempSheetRace.length) {
+			sheetRace += tempSheetRace[index];
+			index++;
+			await new Promise(resolve => setTimeout(resolve, speed));
+		}
+
+		index = 0;
+		while (index < tempSheetStr.length) {
+			sheetStr += tempSheetStr[index];
+			index++;
+			await new Promise(resolve => setTimeout(resolve, speed));
+		}
+
+		index = 0;
+		while (index < tempSheetWeak.length) {
+			sheetWeak += tempSheetWeak[index];
+			index++;
+			await new Promise(resolve => setTimeout(resolve, speed));
+		}
+
+		index = 0;
+		while (index < tempSheetFear.length) {
+			SheetFear += tempSheetFear[index];
+			index++;
+			await new Promise(resolve => setTimeout(resolve, speed));
+		}
+
+		index = 0;
+		while (index < tempSheetAgility.length) {
+			sheetAgility += tempSheetAgility[index];
+			index++;
+			await new Promise(resolve => setTimeout(resolve, speed));
+		}
+
+		index = 0;
+		while (index < tempSheetMorality.length) {
+			sheetMorality += tempSheetMorality[index];
+			index++;
+			await new Promise(resolve => setTimeout(resolve, speed));
+		}
+
+		index = 0;
+		while (index < tempSheetFame.length) {
+			sheetFame += tempSheetFame[index];
+			index++;
+			await new Promise(resolve => setTimeout(resolve, speed));
+		}
+
+		index = 0;
+		while (index < tempSheetAbility.length) {
+			sheetAbility += tempSheetAbility[index];
+			index++;
+			await new Promise(resolve => setTimeout(resolve, speed));
+		}
+
+		index = 0;
+		while (index < tempSheetStory.length) {
+			sheetStory += tempSheetStory[index];
+			index++;
+			await new Promise(resolve => setTimeout(resolve, speed));
+		}
+	}
+
+	
+	async function formatCharacterSheet(sheet) {
+		const regex = {
+			name: /Name:\s*(.+)/,
+			class: /Class:\s*(.+)/,
+			race: /Race:\s*(.+)/,
+			strength: /Strength\s*\((\d+)\):\s*(.+)/,
+			weakness: /Weakness\s*\((\d+)\):\s*(.+)/,
+			fear: /Fear\s*\((\d+)\):\s*(.+)/,
+			agility: /Agility\s*\((\d+)\):\s*(.+)/,
+			morality: /Morality\s*\((\d+)\):\s*(.+)/,
+			fame: /Fame\s*\((\d+)\):\s*(.+)/,
+			ability: /Special Abilities:\s*(.+)/,
+			story: /Backstory:\s*(.+)/
+		};
+
+		sheetName = sheet.match(regex.name)?.[1] || "";
+		sheetClass = sheet.match(regex.class)?.[1] || "";
+		sheetRace = sheet.match(regex.race)?.[1] || "";
+
+		sheetStrNum = parseInt(sheet.match(regex.strength)?.[1]) || 0;
+		sheetStr = sheet.match(regex.strength)?.[2] || "";
+
+		sheetWeakNum = parseInt(sheet.match(regex.weakness)?.[1]) || 0;
+		sheetWeak = sheet.match(regex.weakness)?.[2] || "";
+
+		sheetFearNum = parseInt(sheet.match(regex.fear)?.[1]) || 0;
+		SheetFear = sheet.match(regex.fear)?.[2] || "";
+
+		sheetAgilityNum = parseInt(sheet.match(regex.agility)?.[1]) || 0;
+		sheetAgility = sheet.match(regex.agility)?.[2] || "";
+
+		sheetMoralityNum = parseInt(sheet.match(regex.morality)?.[1]) || 0;
+		sheetMorality = sheet.match(regex.morality)?.[2] || "";
+
+		sheetFameNum = parseInt(sheet.match(regex.fame)?.[1]) || 0;
+		sheetFame = sheet.match(regex.fame)?.[2] || "";
+
+		sheetAbility = sheet.match(regex.ability)?.[1] || "";
+		sheetStory = sheet.match(regex.story)?.[1] || "";
+	}
 
 	// <-------------------------------------- Story Generation -------------------------------------->
 
@@ -204,8 +413,7 @@
 	}
 
 	async function generateBackground(story) {
-    	backgroundTheme = await llm2(themePrompt, story);
-    	backgroundImage = await generateImage('a pixel art style scene of' + backgroundTheme);
+    	backgroundImage = await imgLLM(themePrompt + story);
 	}
 
 	// <-------------------------------------- UI Elements -------------------------------------->
@@ -249,7 +457,7 @@
     	showLoadingCenter = true;
     	backgroundImage = '';
     
-    	story = await llm(choicePrompt, userResponse+' {'+generateRandomNumber()+'}');
+    	story = await storyLLM(choicePrompt + userResponse+' {'+generateRandomNumber()+'}');
     	isSubmitted = true;
 	}
 
@@ -270,7 +478,7 @@
 
     	try {
 
-        	story = await llm(introPrompt, characterContent);
+        	story = await storyLLM(introPrompt + characterContent);
         	await generateBackground(story);
 
         	showLoadingCenter = false;
@@ -324,20 +532,20 @@
     <div class="card-container">
         <!-- Card 1 -->
         <div class="character-card" on:click={() => selectCharacter(0)} on:mouseenter={() => SFX(0)} on:click={() => SFX(2)}>
-            <img src="{char1}" alt="Warrior" class="card-image" />
-            <div class="card-title">Suraj</div>
+            <img src="data:image/png;base64,{char1}" alt="char1" class="card-image" />
+            <div class="card-title">{charName1}</div>
         </div>
 
         <!-- Card 2 -->
         <div class="character-card" on:click={() => selectCharacter(1)} on:mouseenter={() => SFX(1)} on:click={() => SFX(2)}>
-            <img src="{char2}" alt="Mage" class="card-image" />
-            <div class="card-title">Spooder-Mon</div>
+            <img src="data:image/png;base64,{char2}" alt="char2" class="card-image" />
+            <div class="card-title">{charName2}</div>
         </div>
 
         <!-- Card 3 -->
         <div class="character-card" on:click={() => selectCharacter(2)} on:mouseenter={() => SFX(1)} on:click={() => SFX(2)}>
-            <img src="{char3}" alt="Rogue" class="card-image" />
-            <div class="card-title">Selmon Bhai</div>
+            <img src="data:image/png;base64,{char3}" alt="char3" class="card-image" />
+            <div class="card-title">{charName3}</div>
         </div>
 
         <!-- Card 4 (Custom) -->
@@ -351,20 +559,40 @@
 
 {#if showTextarea}
 
-	<img class="{isBack ? 'back-button' : 'back-button-hidden'}" src={back} on:click={() => handleBackClick()} />
+	<img class="{isBack ? 'back-button' : 'back-button-hidden'}" src={back} on:click={() => handleBackClick()} alt='back'/>
 
 	<div class="textarea-wrapper {showCharacterSheet ? 'character-sheet' : ''}">
-		<textarea
-			class="character-input {showCharacterSheet ? 'character-sheet' : ''}"
-			type="text"
-			on:keydown={(e) => e.key === 'Enter' && createAvatar()}
-			placeholder={showCharacterSheet ? loadingText : 'Name or Describe your character...'}
-			bind:value={userPrompt}
-			readonly={showCharacterSheet}
-		>
-			{showCharacterSheet ? characterContent : userPrompt}
-		</textarea>
+		{#if showCharacterSheet}
+			<div class="character-input character-sheet">
+				<p id="sheet-title">Character Sheet</p>
+				<p id="loading" class={isLoading ? '' : 'hidden'}>Generating...</p>
+				<br/>
+				<span class="sheet-feature" id="grey"><p id="white">Name</p><span class="sheet-description" id="sheet-name">{sheetName}</span></span>
+				<span class="sheet-feature" id="grey"><p id="white">Class</p><span class="sheet-description" id="sheet-name1">{sheetClass}</span></span>
+				<span class="sheet-feature" id="grey"><p id="white">Race</p><span class="sheet-description" id="sheet-name1">{sheetRace}</span></span>
+				<br/>
+				<span class="sheet-feature" id="grey"><p id="white">Strength<span class="sheet-num" id={sheetStrNum > 10 ? "green" : "red"}>({sheetStrNum})</span></p><span class="sheet-description">{sheetStr}</span></span>
+				<span class="sheet-feature" id="grey"><p id="white">Weakness<span class="sheet-num" id={sheetWeakNum > 10 ? "green" : "red"}>({sheetWeakNum})</span></p><span class="sheet-description">{sheetWeak}</span></span>
+				<span class="sheet-feature" id="grey"><p id="white">Fear<span class="sheet-num" id={sheetFearNum> 10 ? "green" : "red"}>({sheetFearNum})</span></p><span class="sheet-description">{SheetFear}</span></span>
+				<span class="sheet-feature" id="grey"><p id="white">Agility<span class="sheet-num" id={sheetAgilityNum> 10 ? "green" : "red"}>({sheetAgilityNum})</span></p><span class="sheet-description">{sheetAgility}</span></span>
+				<span class="sheet-feature" id="grey"><p id="white">Morality<span class="sheet-num" id={sheetMoralityNum > 10 ? "green" : "red"}>({sheetMoralityNum})</span></p><span class="sheet-description">{sheetMorality}</span></span>
+				<span class="sheet-feature" id="grey"><p id="white">Fame<span class="sheet-num" id={sheetFameNum > 10 ? "green" : "red"}>({sheetFameNum})</span></p><span class="sheet-description">{sheetFame}</span></span>
+				<br/>
+				<span class="sheet-feature" id="grey"><p id="white">Special Abilities</p><span class="sheet-description">{sheetAbility}</span></span>
+				<br/>
+				<span class="sheet-feature" id="grey"><span class="sheet-description">{sheetStory}</span></span>
+			</div>
+		{:else}
+			<textarea
+				class="character-input"
+				type="text"
+				on:keydown={(e) => e.key === 'Enter' && createAvatar()}
+				placeholder="Name or Describe your character..."
+				bind:value={userPrompt}
+			></textarea>
+		{/if}
 	</div>
+	
 {/if}
 
 <div class="image-display {backgroundImage ? 'show' : ''}">
