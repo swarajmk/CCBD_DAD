@@ -1,4 +1,3 @@
-let num = 2;
 let messages = [];
 
 export async function storyLLM(userPrompt) {
@@ -18,7 +17,7 @@ export async function storyLLM(userPrompt) {
             // Save the response to the messages list
             messages = [...messages, { role: 'assistant', content: data.content }];
 
-            console.log('Input:', userPrompt);
+            //console.log('Input:', userPrompt);
             console.log('Response:', data.content);
 
             return data.content;
@@ -34,11 +33,8 @@ export async function storyLLM(userPrompt) {
 
 export async function charLLM(userPrompt) {
 
-    if(num === 1) num = 2;
-    else num = 1;
-
     try {
-        const response = await fetch('/api/charModel' + num, {
+        const response = await fetch('/api/charModel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ messages: [{ role: 'user', content: userPrompt }] })
@@ -47,7 +43,7 @@ export async function charLLM(userPrompt) {
         if (response.ok) {
             const data = await response.json();
 
-            console.log('Input:', userPrompt);
+            //console.log('Input:', userPrompt);
             console.log('Response:', data.content);
 
             return data.content;
@@ -60,7 +56,7 @@ export async function charLLM(userPrompt) {
     }
 }
 
-export async function imgLLM(userPrompt) {
+export async function imgLLM(userPrompt, height, width) {
 
     try {
         const response = await fetch('/api/feederModel', {
@@ -74,7 +70,7 @@ export async function imgLLM(userPrompt) {
             let imagePrompt = feeder.content.trim();
             
             console.log('Prompt:', imagePrompt);
-            const data = await stableDiffusion('pixel art, 32bit, masterpiece, best quality, ' + imagePrompt);
+            const data = await stableDiffusion('pixel art, 32bit, masterpiece, best quality, ' + imagePrompt, height, width);
 
             return data;
     
@@ -98,20 +94,16 @@ export async function imgLLM(userPrompt) {
 
 
 
-async function stableDiffusion(imagePrompt) {
+async function stableDiffusion(imagePrompt, height, width) {
     if (imagePrompt.trim() === '') return null;
     try {
         const response = await fetch('/api/imgModel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: imagePrompt })
+            body: JSON.stringify({ prompt: imagePrompt, imgHeight: height, imgWidth: width })
         });
 
         if (response.ok) {
-            setTimeout(() => {
-                isImageReady = true;
-            }, 1000);
-
             const data = await response.json();
             return data.image;
         } else {

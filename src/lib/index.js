@@ -1,4 +1,5 @@
 export {default as Loading} from './img/loading.gif';
+export {default as Loading1} from './img/loading1.gif';
 export {default as back} from './img/back.png';
 export {default as back1} from './img/back1.png';
 
@@ -51,6 +52,8 @@ export async function getDefaultCharacters() {
     let char8 = await getTxtFile('/characters/char8.txt');
     let char9 = await getTxtFile('/characters/char9.txt');
     let char10 = await getTxtFile('/characters/char10.txt');
+    let char11 = await getTxtFile('/characters/char11.txt');
+    let char12 = await getTxtFile('/characters/char12.txt');
     let charSelmon1 = await getTxtFile('/characters/charSelmon1.txt');
     let charSelmon2 = await getTxtFile('/characters/charSelmon2.txt');
     let charSelmon3 = await getTxtFile('/characters/charSelmon3.txt');
@@ -65,6 +68,8 @@ export async function getDefaultCharacters() {
     let sheet8 = await getTxtFile('/characters/sheet8.txt');
     let sheet9 = await getTxtFile('/characters/sheet9.txt');
     let sheet10 = await getTxtFile('/characters/sheet10.txt');
+    let sheet11 = await getTxtFile('/characters/sheet11.txt');
+    let sheet12 = await getTxtFile('/characters/sheet12.txt');
     let sheetSelmon1 = await getTxtFile('/characters/sheetSelmon1.txt');
     let sheetSelmon2 = await getTxtFile('/characters/sheetSelmon2.txt');
     let sheetSelmon3 = await getTxtFile('/characters/sheetSelmon3.txt');
@@ -86,7 +91,7 @@ export async function getDefaultCharacters() {
             desc: sheet3,
         },
         {
-            name: 'Cham',
+            name: 'Yurei ',
             pfp: char4,
             desc: sheet4,
         },
@@ -121,6 +126,16 @@ export async function getDefaultCharacters() {
             desc: sheet10,
         },
         {
+            name: "Nikhil's Cat",
+            pfp: char11,
+            desc: sheet11,
+        },
+        {
+            name: "Indian Mom",
+            pfp: char12,
+            desc: sheet12,
+        },
+        {
             name: 'Deer Killer',
             pfp: charSelmon1,
             desc: sheetSelmon1,
@@ -137,219 +152,3 @@ export async function getDefaultCharacters() {
         },
     ];
 }
-
-
-
-
-
-
-
-
-export let characterSheetPrompt = `Given a character description, or a character name, Create a character sheet that is humourous, detailed (but in one line). Example is mentioned below, use the exact format including spaces, the parameters have a number range to describe how good the parameter is from 0-20, no restrictions.
-Example:
-character description: John Wick
-character sheet:
-----------CHARACTER SHEET----------
-
-Name: John Wick  
-Class: Legendary Hitman
-Race: Human (with possible supernatural endurance)  
-
-Strength (20): Can clear a room of enemies before his coffee gets cold.  
-
-Weakness (5): Puppies, retirement, and a never-ending hit list.  
-
-Fear (3): Running out of bullets, losing another dog, and office jobs.  
-
-Agility (19): Moves like a ninja, fights like a wrecking ball.  
-
-Morality (12): Chaotic Good—unless you wrong him, then it's Chaotic Obliteration.  
-
-Fame (18): Known worldwide; feared even by people who have never met him.  
-
-Special Abilities: Turns everyday objects into weapons and pain into motivation.  
-
-
-Backstory:
-Once a feared assassin, John Wick retired for love, but fate and some very unlucky gangsters forced him back into the game. What started as a personal vendetta spiraled into a global assassin war, all because people keep **underestimating John Wick.** Now, he seeks peace, but destiny (and his enemies) have other plans.
-
-
-Here is the latest character description: `;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export let avatarGenerationPrompt = `Given a character name, description, and character sheet, generate a highly detailed prompt for a Stable Diffusion model to create a **portrait** of the character. 
-
-1. **Prioritize the actual appearance of the character based on knowledge** (if the character exists in popular media, mythology, or history).    
-2. **If the character is unknown, use the description as the primary source** and generate a detailed visual representation.  
-3. **For masked characters, describe their mask or helmet instead of facial features.**  
-
-
-The output must be in the following format:
-
-"portrait of [character name], [age], [gender], [ethnicity or fantasy race if applicable]. [If known character: Using well-established appearance, featuring (eye color, hair style, defining traits)]. [If unknown: Generating features based on the description provided]. [If masked: Wearing (mask/helmet description), covering facial features]. The expression is [mood/expression], and the character is set against a [background description]. The lighting is [lighting style], with a [artistic/cinematic enhancement]. Rendered in [art style, e.g., hyperrealistic, digital painting, anime-style, fantasy illustration, etc.]. 
-
-
-
----
-
-### **Example 1 (Known Character - Knowledge Override Applied)**
-**Input:**
-"Generate a portrait of Rocky Bhai from KGF, short-haired version."
-
-**Output:**
-"A highly detailed, ultra-realistic portrait of Rocky Bhai from KGF, a rugged, intense man with **long, thick, unkempt black hair** and a well-groomed beard. His piercing gaze is filled with determination. His expression is brooding, with a slight smirk. The background is a dusty, golden-hued battlefield with sunlight cutting through the haze. The lighting is dramatic, with deep shadows enhancing his features. Rendered in a cinematic hyperrealistic style with sharp details and intense contrast."
-
----
-
-### **Example 2 (Masked Character)**
-**Input:**
-"Generate a portrait of Spider-Man, showing his brown eyes and messy hair."
-
-**Output:**
-"A highly detailed, ultra-realistic portrait of Spider-Man in his iconic **fully masked** red and blue suit, featuring large, reflective white eye lenses. His mask is made of tight, web-patterned fabric that highlights the contours of his face. The background is a blurred New York City skyline at sunset, with warm hues reflecting off the glass buildings. The lighting is cinematic, with a soft golden glow. Rendered in a hyperrealistic comic-book style."
-
-
----
-`;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export let themePrompt = `Given a story, generate an image prompt for a pixel art image that visually represents the scene. The output must be in the following format:
-
-tag1, tag2, tag3, ...
-
-Example Input:
-
-Story Introduction:
-
-Joe Goldberg, the Stalkerazzi Bard, has found himself in the bustling city of New York, the perfect place to find his next muse. He's been working on a new love ballad, but he can't seem to find the right inspiration. That is, until he meets the beautiful and enigmatic librarian, Jane. She's intelligent, charming, and has a love for books that rivals his own. Joe is instantly smitten and begins to follow her every move, from her morning coffee run to her evening yoga class.
-
-But just as Joe is about to make his move, he discovers that Jane is the lead singer of a popular punk rock band, and she's about to go on tour. Joe is heartbroken, but he's not about to let Jane slip away. He decides to follow her on tour, determined to win her heart and become her number one fan.
-
-Challenging Scenario:
-
-You've managed to sneak your way backstage at Jane's concert, but the security guards are getting suspicious. You're hiding behind a stack of amps, trying to catch a glimpse of Jane. Suddenly, one of the guards turns around and spots you.
-
-Example Output:
-
-pixel art, 32 bit, Jane, lead singer, petite, long black hair, dark eyeliner, ripped fishnet top, leather pants, singing, microphone, Joe Goldberg, pale skin, dark hair, black hoodie, jeans, hiding, amps, backstage, low contrast, film grain, focus on Jane, focus on Joe
-`;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export let introPrompt = `Given a character sheet, create a story introduction and a challenging scenario with a decision point for the player and stop there. DO NOT mention potential consequences or give options. The plot should be as detailed as a movie. The story should be tailored to the character's abilities, weaknesses, and backstory, and should be humorous.
-
-Example Input:
-
-Character Sheet:
-
-Name: John Wick
-Class: Lethally Efficient Murderhobo
-Race: Human (but seriously, how does he do that?)
-...
-Example Output:
-
-John Wick, the legendary assassin, finds himself in a seedy, neon-lit metropolis, Tokyo. He's been hired to retrieve a stolen antique katana, a family heirloom. The only problem? The thief is a yakuza boss with a penchant for violence and a taste for exotic pets.
-
-Scenario:
-
-You've tracked the thief to a dimly lit, smoke-filled yakuza club. The bouncer, a hulking brute with a face like a smashed watermelon, blocks your path. "Password?" he growls.
-
-What do you say?
-`;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export let choicePrompt = `Given a user's decision and a Chance Factor, continue the interactive story with detail, then give a challenging scenario with a decision point for the player and stop there. Do not mention potential consequences or give options. The plot should be as detailed as a movie. The story should be tailored to the character's abilities, weaknesses, and backstory, and should be humorous.
-
-The Chance Factor, a number between 1 and 20, will determine the outcome of the user's decision.
-
-1-5: A critical failure. The user's plan goes horribly wrong, with potentially disastrous consequences.
-6-10: A significant setback. The user's plan is partially successful, but at a high cost.
-11-15: A mixed result. The user's plan is partially successful, with both positive and negative outcomes.
-16-20: A critical success. The user's plan works perfectly, with unexpected benefits.
-Example Input:
-
-User's Decision and Chance Factor: "I'll shove Deepesh in front of the horde to distract them, then escape." {5}
-Example Output:
-
-You shove Deepesh into the horde of zombies, hoping to distract them long enough to make your escape. Unfortunately, your plan backfires spectacularly. Not only does Deepesh get devoured, but the zombies are now even more enraged. They turn their attention to you, their decaying jaws gnashing with renewed hunger.
-
-You draw your trusty katana and prepare to fight. A horde of shambling corpses rushes towards you.
-
-What do you do?
-`;
-
-
-
-
-
-
-
-
-
-
-
-export let continuePrompt = `
-`;
-
-export let finalePrompt = `
-`;
-
-export let summaryPrompt = `
-`;
